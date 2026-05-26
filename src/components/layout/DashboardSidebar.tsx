@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   CalendarDays,
   Home,
+  LogOut,
   Menu,
   MessageSquareText,
   PanelLeftClose,
@@ -12,6 +14,7 @@ import {
   Users,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
+import { getSupabaseClient } from "@/lib/supabase";
 
 const navigation = [
   { href: "/dashboard", label: "Inicio", icon: Home },
@@ -23,6 +26,21 @@ const navigation = [
 
 export function DashboardSidebar() {
   const [open, setOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const router = useRouter();
+
+  async function handleLogout() {
+    setLoggingOut(true);
+
+    try {
+      const supabase = getSupabaseClient();
+      await supabase.auth.signOut();
+      router.replace("/login");
+      router.refresh();
+    } finally {
+      setLoggingOut(false);
+    }
+  }
 
   return (
     <>
@@ -79,6 +97,15 @@ export function DashboardSidebar() {
             42 pacientes activos y seguimiento ilimitado.
           </p>
         </div>
+        <button
+          className="mt-4 flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-semibold text-slate-600 transition hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+          disabled={loggingOut}
+          onClick={handleLogout}
+          type="button"
+        >
+          <LogOut className="h-5 w-5" />
+          {loggingOut ? "Saliendo..." : "Cerrar sesión"}
+        </button>
       </aside>
       {open ? (
         <button

@@ -1,3 +1,8 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import type { User } from "@supabase/supabase-js";
 import {
   ArrowUpRight,
   CalendarPlus,
@@ -8,6 +13,7 @@ import {
 } from "lucide-react";
 import { DashboardSidebar } from "@/components/layout/DashboardSidebar";
 import { Button } from "@/components/ui/Button";
+import { getSupabaseClient } from "@/lib/supabase";
 
 const summaryCards = [
   { label: "Pacientes activos", value: "42", detail: "+6 este mes" },
@@ -53,6 +59,69 @@ const patients = [
 ];
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const supabase = getSupabaseClient();
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) {
+        router.replace("/login?redirect=/dashboard");
+        return;
+      }
+
+      setUser(data.session.user);
+      setLoading(false);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (!session) {
+          router.replace("/login?redirect=/dashboard");
+          return;
+        }
+
+        setUser(session.user);
+        setLoading(false);
+      },
+    );
+
+    return () => listener.subscription.unsubscribe();
+  }, [router]);
+
+  const displayName = useMemo(() => {
+    const metadataName = user?.user_metadata?.full_name;
+
+    if (typeof metadataName === "string" && metadataName.trim()) {
+      return metadataName.trim().split(" ")[0];
+    }
+
+    return user?.email?.split("@")[0] || "profesional";
+  }, [user]);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-ocean-50 lg:grid lg:grid-cols-[18rem_1fr]">
+        <DashboardSidebar />
+        <section className="px-4 py-6 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="rounded-lg border border-ocean-100 bg-white p-6 shadow-sm">
+              <p className="text-sm font-semibold text-ocean-700">Dashboard</p>
+              <h1 className="mt-2 text-2xl font-bold text-ink">
+                Preparando tu panel...
+              </h1>
+              <p className="mt-2 text-slate-600">
+                Estamos verificando tu sesión.
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-ocean-50 lg:grid lg:grid-cols-[18rem_1fr]">
       <DashboardSidebar />
@@ -64,7 +133,7 @@ export default function DashboardPage() {
                 Dashboard
               </p>
               <h1 className="mt-1 text-3xl font-bold text-ink">
-                Bienvenida, Sofía
+                Bienvenida, {displayName}
               </h1>
               <p className="mt-2 text-slate-600">
                 Tenés 8 sesiones programadas para hoy y 4 evoluciones por revisar.
