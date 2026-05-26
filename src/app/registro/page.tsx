@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Building2, Mail, LockKeyhole, UserRound } from "lucide-react";
+import { BadgeCheck, Mail, LockKeyhole, UserRound } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/Button";
 import { getSupabaseClient } from "@/lib/supabase";
@@ -11,7 +11,7 @@ import { getSupabaseClient } from "@/lib/supabase";
 export default function RegisterPage() {
   const router = useRouter();
   const [fullName, setFullName] = useState("");
-  const [clinicName, setClinicName] = useState("");
+  const [licenseNumber, setLicenseNumber] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -43,7 +43,8 @@ export default function RegisterPage() {
           emailRedirectTo: `${window.location.origin}/dashboard`,
           data: {
             full_name: fullName,
-            clinic_name: clinicName,
+            license_number: licenseNumber,
+            role: "kinesiologist",
           },
         },
       });
@@ -83,12 +84,12 @@ export default function RegisterPage() {
       onChange: setFullName,
     },
     {
-      label: "Consultorio o centro",
-      placeholder: "Kinesio Norte",
+      label: "Matrícula profesional",
+      placeholder: "MN 12345",
       type: "text",
-      icon: Building2,
-      value: clinicName,
-      onChange: setClinicName,
+      icon: BadgeCheck,
+      value: licenseNumber,
+      onChange: setLicenseNumber,
     },
     {
       label: "Email",
@@ -116,7 +117,7 @@ export default function RegisterPage() {
           <div className="mt-8">
             <h1 className="text-3xl font-bold text-ink">Crear cuenta</h1>
             <p className="mt-2 text-slate-600">
-              Comenzá a gestionar tu práctica con KineFlow.
+              Creá tu perfil profesional para comenzar a gestionar pacientes.
             </p>
           </div>
           <form className="mt-8 space-y-5" onSubmit={handleRegister}>
@@ -173,7 +174,7 @@ export default function RegisterPage() {
             Una base clara para crecer con pacientes, sesiones y métricas.
           </h2>
           <div className="mt-8 grid gap-3">
-            {["Agenda simple", "Evoluciones por sesión", "Pacientes recientes"].map(
+            {["Perfil profesional", "Evoluciones por sesión", "Pacientes recientes"].map(
               (item) => (
                 <div
                   className="rounded-lg border border-white/20 bg-white/10 px-4 py-3 font-semibold"
