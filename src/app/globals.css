@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f8fcff;
+  --foreground: #102033;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  color: var(--foreground);
+  background: var(--background);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: #aee3ff;
+  color: #102033;
+}
+
+@layer base {
+  input,
+  select,
+  textarea {
+    min-height: 2.75rem;
+    border-radius: 0.5rem;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+  }
+}
